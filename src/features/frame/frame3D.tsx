@@ -7,10 +7,11 @@ import { TextureLoader } from "three"
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei"
 import { useSelector } from "react-redux"
 import type { RootState } from "../../app/store"
+import CropModal from "../../components/CropModal"
 
 const CustomBox = ({ imageTexture, backCanvasTexture }: any) => {
   const meshRef = useRef<THREE.Mesh>(null)
-  const { zoom, rotationX, rotationY, rotationZ, isPlaying, frameType } = useSelector((state: RootState) => state.frame)
+  const { zoom, rotationX, rotationY, rotationZ, isPlaying, frameType, isCropping  } = useSelector((state: RootState) => state.frame)
 
   const geometry = useMemo(() => {
     const geo = new THREE.BoxGeometry(3, 2, 0.1)
@@ -95,7 +96,7 @@ const CustomBox = ({ imageTexture, backCanvasTexture }: any) => {
 }
 
 const Frame3D = () => {
-  const { viewMode, zoom, frameType } = useSelector((state: RootState) => state.frame)
+  const { viewMode, zoom, frameType, isCropping ,isMirrored  } = useSelector((state: RootState) => state.frame)
 
   const imageURL =
     "https://st2.depositphotos.com/1591133/8812/i/450/depositphotos_88120646-stock-photo-idyllic-summer-landscape-with-clear.jpg"
@@ -107,7 +108,9 @@ const Frame3D = () => {
 
   const imageTexture = useLoader(TextureLoader, imageURL)
   const backCanvasTexture = useLoader(TextureLoader, backCanvasURL)
-
+  const handlePaymentRedirect = () => {
+    window.location.href = "https://suyashaa123-15507.bubbleapps.io/version-test?debug_mode=true"
+  }
   // Room view with 2D background
   if (viewMode === "room") {
     // Calculate frame dimensions based on zoom
@@ -161,6 +164,20 @@ const Frame3D = () => {
 
   // 3D view
   return (
+    <>
+    {isCropping && imageTexture && (
+        <CropModal
+          imageSrc={imageURL}
+          onCropComplete={(croppedBlob) => {
+            const newURL = URL.createObjectURL(croppedBlob)
+            // Safe update of texture image
+            if (imageTexture.image) {
+              imageTexture.image.src = newURL
+              imageTexture.needsUpdate = true
+            }
+          }}
+        />
+      )}
     <Canvas
       style={{ height: "100%", width: "100%" }}
       shadows={false}
@@ -178,6 +195,25 @@ const Frame3D = () => {
       <CustomBox imageTexture={imageTexture} backCanvasTexture={backCanvasTexture} />
       <OrbitControls />
     </Canvas>
+       {/* Payment Button */}
+       <div style={{ position: "absolute", bottom: 20, width: "100%", display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={handlePaymentRedirect}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              fontSize: "16px",
+              cursor: "pointer",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+            }}
+          >
+            Payment Here
+          </button>
+        </div>
+    </>
   )
 }
 

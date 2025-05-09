@@ -10,6 +10,7 @@ interface FrameState {
   rotationZ: number
   viewMode: "room" | "3d"
   frameType: 1 | 2
+   isCropping: boolean 
 }
 
 const initialState: FrameState = {
@@ -22,6 +23,7 @@ const initialState: FrameState = {
   rotationZ: 0,
   viewMode: "3d",
   frameType: 1,
+  isCropping: false, 
 }
 
 const frameSlice = createSlice({
@@ -61,6 +63,9 @@ const frameSlice = createSlice({
     setFrame: (state, action: PayloadAction<1 | 2>) => {
       state.frameType = action.payload
     },
+    toggleCrop: (state) => {
+      state.isCropping = !state.isCropping
+    },
   },
 })
 
@@ -75,6 +80,7 @@ export const {
   toggleWrap,
   setView,
   setFrame,
+  toggleCrop,
 } = frameSlice.actions
 
 export default frameSlice.reducer
